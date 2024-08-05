@@ -1,6 +1,6 @@
 streamlit == 1.32.0
 numpy == 1.21.6
 requests 
-!pip install soundfile == 0.21.1
+soundfile
 note_seq == 0.0.3
 librosa == 0.8.0
