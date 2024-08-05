@@ -1,8 +1,7 @@
 
 streamlit == 1.32.0
 numpy == 1.21.6
-requests == 2.32.2
-json 
+requests 
 soundfile == 0.21.1
 note_seq == 0.0.3
 librosa == 0.8.0
