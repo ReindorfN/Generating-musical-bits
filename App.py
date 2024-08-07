@@ -1,3 +1,14 @@
+
+
+import pip
+
+def install(package):
+    if hasattr(pip, 'main'):
+        pip.main(['install', package])
+    else:
+        pip._internal.main(['install', package])
+
+
 import streamlit as st
 
 import requests
@@ -6,7 +17,7 @@ from urllib.parse import urlparse, parse_qs
 import json
 import numpy as np
 import soundfile as sf
-!pip install note_seq
+install(note_seq)
 import note_seq
 import librosa
 
