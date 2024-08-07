@@ -6,6 +6,7 @@ from urllib.parse import urlparse, parse_qs
 import json
 import numpy as np
 import soundfile as sf
+!pip install note_seq
 import note_seq
 import librosa
 
