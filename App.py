@@ -1,29 +1,20 @@
 
 
-import pip
-
-def install(package):
-    if hasattr(pip, 'main'):
-        pip.main(['install', package])
-    else:
-        pip._internal.main(['install', package])
-
-
 import streamlit as st
-
+import time
 import requests
 import os
 from urllib.parse import urlparse, parse_qs
 import json
 import numpy as np
 import soundfile as sf
-install(note_seq)
+#!pip install note_seq
+import note_seq
 import note_seq
 import librosa
 
 
-API_KEY = "clzg6zq880004jy0cykcuqehm"
-BASE_URL = 'https://api.musicfy.lol/v1'
+
 
 
 
@@ -33,10 +24,10 @@ def generate_music_from_text(text_description, genre):
     instruments = []
     all_midis = []
 
-    pop = ("piano", "violin", "guitar", "synthesizer", "drums", "flute", "vocals")
-    jazz = ("saxophone", "trumpet", "trombone", "piano", "bass", "drums", "guitar")
-    hip_hop = ("drum machine", "keyboard", "piano", "turntable", "sampler", "bass", "guitar")
-    gospel = ("piano", "Hammond organ", "tambourines", "drums", "bass guitar", "keyboard", "electric guitar")
+    pop = ("piano", "guitar", "synthesizer", "drums", "vocals")
+    jazz = ("saxophone", "trumpet", "trombone", "piano", "guitar")
+    hip_hop = ("drum machine", "keyboard", "sampler", "bass", "guitar")
+    gospel = ("Hammond organ", "tambourines", "drums", "bass guitar", "keyboard")
     
     
     if genre == "pop":
@@ -63,7 +54,7 @@ def generate_music_from_text(text_description, genre):
             'genre': genre
         }
 
-        response = requests.request("POST",url, headers=headers, json=data).text
+        response = session.request("POST",url, headers=headers, json=data, verify=False).text
 
         #Using json formatting to extract the html link from the response of the request
         data = json.loads(response)
@@ -92,8 +83,8 @@ def download_wav_files(links):
                 
             filename = f'wave_{index}{file_extension}'
 
-            with open(filename, 'wb') as midi_file:
-                midi_file.write(response.content)
+            with open(filename, 'wb') as wav_file:
+                wav_file.write(response.content)
             wav_files.append(filename)
             
         except requests.exceptions.RequestException as e:
@@ -129,6 +120,7 @@ def blend_wav_files(wav_paths, output_path):
     if os.path.exists(output_path):
         print(f"Output file {output_path} already exists and will be replaced.")
         os.remove(output_path)
+        
     else:
         print(f"Output file {output_path} does not exist. Creating it now.")
     
@@ -139,21 +131,55 @@ def blend_wav_files(wav_paths, output_path):
 
 
 if __name__ == "__main__":
+
+
+    html_temp = """
+    <div style="background-color:tomato;padding:10px">
+    <h2 style="color:white;text-align:center;">Musical Bits Generator App</h2>
+    </div>
+    """
+    st.markdown(html_temp,unsafe_allow_html=True)
+
+    API_KEY = "clzg6zq880004jy0cykcuqehm"
+    BASE_URL = 'https://api.musicfy.lol/v1'
+
+    session = requests.Session()
+    session.verify = False
+    
     text_description = st.text_input("Describe the type of beat you want to create: ").lower()
-    genre = st.text_input("Select a genre: ").lower()
+    genre = st.selectbox("Select a genre: ", ['jazz', 'gospel', 'pop', 'hip-hop'])
     
     # Output file name
     output_file = 'final_beat.wav'
-    try:
-        result = generate_music_from_text(text_description, genre)
-        print("Music generated successfully!")
 
-        #for i, items in enumerate(result):
-            #print(f'item {i}, download: {items}')
 
-        downloaded_files = download_wav_files(result)
-        print(f"Downloaded files: {downloaded_files}")
 
-        final_output = blend_wav_files(downloaded_files, output_file)
-    except Exception as e:
-        print(e)
+    if st.button("Generate beat"):
+        inputs = {
+            'text_description': text_description,
+            'genre': genre
+        }
+
+        try:
+            with st.spinner('Cooking your beat😁'):
+                result = generate_music_from_text(text_description, genre)
+                print("Music generated successfully!")
+
+                downloaded_files = download_wav_files(result)
+                print(f"Downloaded files: {downloaded_files}")
+
+                final_output = blend_wav_files(downloaded_files, output_file)
+    
+            st.success("Will be done soon :)")   
+
+
+            st.audio("final_beat.wav", format="audio/wav", start_time=0, sample_rate=None, end_time=None, loop=False, autoplay=False)
+        except ValueError as e:
+            st.error(f'Predictiion error: {e}')
+        
+
+    if st.button("About"):
+        st.text("""
+Building an Ai model that generates musical beats for users who may have a song but 
+do not have the capacity to generate their own musical beats.
+""")
