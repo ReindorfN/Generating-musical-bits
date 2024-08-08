@@ -170,7 +170,7 @@ if __name__ == "__main__":
 
                 final_output = blend_wav_files(downloaded_files, output_file)
     
-            st.success("Will be done soon :)")   
+            st.success("Congratulations!! :)")   
 
 
             st.audio("final_beat.wav", format="audio/wav", start_time=0, sample_rate=None, end_time=None, loop=False, autoplay=False)
